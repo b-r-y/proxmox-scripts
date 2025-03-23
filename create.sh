@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export EPS_BASE_URL=${EPS_BASE_URL:-https://raw.githubusercontent.com/ej52/proxmox-scripts/main}
+export EPS_BASE_URL=${EPS_BASE_URL:-https://raw.githubusercontent.com/b-r-y/proxmox-scripts/main}
 export EPS_CT_INSTALL=true
 
 export EPS_UTILS_COMMON=$(wget --no-cache -qO- $EPS_BASE_URL/utils/common.sh)
@@ -9,7 +9,7 @@ pms_settraps
 
 while [ "$#" -gt 0 ]; do
   case $1 in
-    --app) 
+    --app)
       EPS_APP_NAME=$2
       shift;;
     --id)
@@ -45,7 +45,7 @@ while [ "$#" -gt 0 ]; do
     --swap)
       EPS_CT_SWAP=$2
       shift;;
-    --cleanup) 
+    --cleanup)
       EPS_CLEANUP=true;;
     *)
       log "error" "Unrecognized option: ${CLR_CYB}$1${CLR}" "" 1;;
@@ -166,7 +166,7 @@ step_start "LXC container" "Creating" "Created"
     log "warn" "Some containers may not work properly due to ZFS not supporting 'fallocate'."
     sleep 3
   fi
-  
+
   _pct_options=(
     -arch $(dpkg --print-architecture)
     -cmode shell

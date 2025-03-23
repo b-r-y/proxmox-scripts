@@ -8,7 +8,7 @@ EPS_CLEANUP=${EPS_CLEANUP:-false}
 EPS_CT_INSTALL=${EPS_CT_INSTALL:-false}
 
 if [ -z "$EPS_BASE_URL" -o -z "$EPS_OS_DISTRO" -o -z "$EPS_UTILS_COMMON" -o -z "$EPS_UTILS_DISTRO" -o -z "$EPS_APP_CONFIG" ]; then
-  printf "Script looded incorrectly!\n\n";
+  printf "Script loaded incorrectly!\n\n";
   exit 1;
 fi
 
@@ -57,7 +57,7 @@ step_start "Dependencies" "Installing" "Installed"
 step_start "Rust" "Installing" "Installed"
   _rustArch=""
   _rustClibtype="gnu"
-  
+
   if [ "$EPS_OS_DISTRO" = "alpine" ]; then
     _rustClibtype="musl"
   fi
@@ -75,7 +75,7 @@ step_start "Rust" "Installing" "Installed"
       step_end "Architecture not supported: ${CLR_CYB}$EPS_OS_ARCH${CLR}" 1
     fi
   fi
-  
+
   os_fetch -O ./rustup-init https://static.rust-lang.org/rustup/archive/1.26.0/$_rustArch/rustup-init
   chmod +x ./rustup-init
   ./rustup-init -q -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $_rustArch &>$__OUTPUT
@@ -113,7 +113,7 @@ step_start "Python"
   if printf "$PYTHON_VERSION\n3.7" | sort -cV &>/dev/null; then
     _pipGetScript="https://bootstrap.pypa.io/pip/$PYTHON_VERSION/get-pip.py"
   fi
-  
+
   # Setup venv and install pip packages in venv
   python3 -m venv /opt/certbot/
   . /opt/certbot/bin/activate
@@ -125,14 +125,14 @@ step_start "Python"
   ln -sf /usr/bin/python3 /usr/bin/python
   ln -sf /opt/certbot/bin/pip /usr/bin/pip
   ln -sf /opt/certbot/bin/certbot /usr/bin/certbot
-  
+
   step_end "Python ${CLR_CYB}v$PYTHON_VERSION${CLR} ${CLR_GN}and Pip${CLR} ${CLR_CYB}v$PIP_VERSION${CLR} ${CLR_GN}Installed"
 
 step_start "Openresty"
   if [ "$EPS_OS_DISTRO" = "alpine" ]; then
-    os_fetch -O /etc/apk/keys/admin@openresty.com-5ea678a6.rsa.pub 'http://openresty.org/package/admin@openresty.com-5ea678a6.rsa.pub'
-    sed -i '/openresty.org/d' /etc/apk/repositories >$__OUTPUT
-    printf "http://openresty.org/package/alpine/v$EPS_OS_VERSION/main"| tee -a /etc/apk/repositories >$__OUTPUT
+    # os_fetch -O /etc/apk/keys/admin@openresty.com-5ea678a6.rsa.pub 'http://openresty.org/package/admin@openresty.com-5ea678a6.rsa.pub'
+    # sed -i '/openresty.org/d' /etc/apk/repositories >$__OUTPUT
+    # printf "http://openresty.org/package/alpine/v$EPS_OS_VERSION/main"| tee -a /etc/apk/repositories >$__OUTPUT
   else
     os_fetch -O- https://openresty.org/package/pubkey.gpg | gpg --yes --dearmor -o /usr/share/keyrings/openresty.gpg &>$__OUTPUT
 
@@ -152,8 +152,8 @@ step_start "Openresty"
 
   pkg_update
   pkg_add openresty
-  ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx
-  ln -sf /usr/local/openresty/nginx/ /etc/nginx
+  # ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx
+  # ln -sf /usr/local/openresty/nginx/ /etc/nginx
   OPENRESTY_VERSION=$(openresty -v 2>&1 | grep -o '[0-9.]*$')
   step_end "Openresty ${CLR_CYB}v$OPENRESTY_VERSION${CLR} ${CLR_GN}Installed"
 
@@ -219,7 +219,7 @@ step_start "Enviroment" "Setting up" "Setup"
   # Update NPM version in package.json files
   sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$NPM_VERSION\"/" backend/package.json
   sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$NPM_VERSION\"/" frontend/package.json
-  
+
   # Fix nginx config files for use with openresty defaults
   sed -i 's/user npm/user root/g; s/^pid/#pid/g; s+^daemon+#daemon+g' docker/rootfs/etc/nginx/nginx.conf
   sed -i 's/include-system-site-packages = false/include-system-site-packages = true/g' /opt/certbot/pyvenv.cfg
@@ -278,8 +278,8 @@ step_start "Frontend" "Building" "Built"
   cd ./frontend
   export NODE_ENV=development
   yarn cache clean --silent --force >$__OUTPUT
-  yarn install --silent --network-timeout=30000 >$__OUTPUT 
-  yarn build >$__OUTPUT 
+  yarn install --silent --network-timeout=30000 >$__OUTPUT
+  yarn build >$__OUTPUT
   cp -r dist/* /app/frontend
   cp -r app-images/* /app/frontend/images
 
@@ -291,7 +291,7 @@ step_start "Backend" "Initializing" "Initialized"
   fi
   cd /app
   export NODE_ENV=development
-  yarn install --silent --network-timeout=30000 >$__OUTPUT 
+  yarn install --silent --network-timeout=30000 >$__OUTPUT
 
 step_start "Services" "Starting" "Started"
   printf "$EPS_SERVICE_DATA\n" | tee $EPS_SERVICE_FILE >$__OUTPUT
